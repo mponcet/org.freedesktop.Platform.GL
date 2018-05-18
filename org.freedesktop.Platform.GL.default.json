@@ -84,35 +84,35 @@
             "name": "mesa",
             "build-options" : {
                 "cxxflags": "-fno-rtti -fno-exceptions",
-		"arch" : {
-		    "i386" : {
-			"config-opts" : [
+                "arch" : {
+                    "i386" : {
+                        "config-opts" : [
                             "--build=i586-unknown-linux-gnu",
-			    "--with-gallium-drivers=svga,swrast,radeonsi,nouveau,r600,r300,radeonsi,virgl",
-			    "--with-dri-drivers=swrast,nouveau,radeon,r200,i915,i965",
-			    "--with-vulkan-drivers=intel,radeon"
-			]
-		    },
-		    "x86_64" : {
-			"config-opts" : [
-			    "--with-gallium-drivers=svga,swrast,radeonsi,nouveau,r600,r300,radeonsi,virgl",
-			    "--with-dri-drivers=swrast,nouveau,radeon,r200,i915,i965",
-			    "--with-vulkan-drivers=intel,radeon"
-			]
-		    },
-		    "arm" : {
-			"config-opts" : [
-			    "--with-gallium-drivers=swrast,nouveau,freedreno,vc4",
-			    "--with-dri-drivers=swrast,nouveau,radeon,r200"
-			]
-		    },
-		    "aarch64" : {
-			"config-opts" : [
-			    "--with-gallium-drivers=swrast,nouveau,freedreno,vc4",
-			    "--with-dri-drivers=swrast,nouveau,radeon,r200"
-			]
-		    }
-		}
+                            "--with-gallium-drivers=svga,swrast,radeonsi,nouveau,r600,r300,radeonsi,virgl",
+                            "--with-dri-drivers=swrast,nouveau,radeon,r200,i915,i965",
+                            "--with-vulkan-drivers=intel,radeon"
+                        ]
+                    },
+                    "x86_64" : {
+                        "config-opts" : [
+                            "--with-gallium-drivers=svga,swrast,radeonsi,nouveau,r600,r300,radeonsi,virgl",
+                            "--with-dri-drivers=swrast,nouveau,radeon,r200,i915,i965",
+                            "--with-vulkan-drivers=intel,radeon"
+                        ]
+                    },
+                    "arm" : {
+                        "config-opts" : [
+                        "--with-gallium-drivers=swrast,nouveau,freedreno,vc4",
+                        "--with-dri-drivers=swrast,nouveau,radeon,r200"
+                        ]
+                    },
+                    "aarch64" : {
+                        "config-opts" : [
+                            "--with-gallium-drivers=swrast,nouveau,freedreno,vc4",
+                            "--with-dri-drivers=swrast,nouveau,radeon,r200"
+                        ]
+                    }
+                }
             },
             "config-opts": [
                 "--enable-libglvnd",
