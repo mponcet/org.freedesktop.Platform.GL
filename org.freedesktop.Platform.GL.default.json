@@ -26,6 +26,12 @@
             "builddir": true,
             "cleanup-platform": ["*"],
             "build-options" : {
+                "env": {
+                    /* Override global values */
+                    "CFLAGS": "",
+                    "CXXFLAGS": "",
+                    "LDFLAGS": ""
+                },
                 "arch" : {
                     "i386" : {
                         "config-opts" : [
