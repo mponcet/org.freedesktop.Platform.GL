@@ -4,24 +4,23 @@
     "runtime": "org.freedesktop.Platform",
     "build-extension": true,
     "sdk": "org.freedesktop.Sdk",
-    "runtime-version": "1.6",
+    "runtime-version": "18.08",
     "sdk-extensions": [],
     "separate-locales": false,
     "cleanup": [  "/include", "/share/man" ],
     "build-options" : {
         "no-debuginfo": true,
         "strip": true,
-        "cflags": "-O2 -g",
-        "cxxflags": "-O2 -g",
-        "prefix": "/usr/lib/GL/default",
+        "prefix": "/usr/lib/x86_64-linux-gnu/GL/default",
         "env": {
             "V": "1",
-            "PKG_CONFIG_LIBGLVND_DATADIR": "/usr/lib/GL/default"
+            "PKG_CONFIG_LIBGLVND_DATADIR": "/usr/lib/x86_64-linux-gnu/GL/default",
+            "PKG_CONFIG_PATH": "/usr/lib/x86_64-linux-gnu/GL/default/lib/pkgconfig:/app/lib/pkgconfig:/app/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig"
         }
     },
     "modules": [
         {
-            "name": "llvm7libs",
+            "name": "llvm-libs",
             "buildsystem": "cmake-ninja",
             "builddir": true,
             "cleanup-platform": ["*"],
@@ -70,13 +69,33 @@
                 "-DLLVM_INCLUDE_DOCS:BOOL=OFF",
                 "-DLLVM_ENABLE_DOXYGEN:BOOL=OFF",
                 "-DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON",
-                "-DFFI_INCLUDE_DIR=/usr/lib/libffi-3.2.1/include",
+                "-DFFI_INCLUDE_DIR=/usr/lib/x86_64-linux-gnu/libffi-3.2.1/include",
                 "-DLLVM_INSTALL_TOOLCHAIN_ONLY:BOOL=OFF"
             ],
             "sources": [
                 {
                     "type": "git",
                     "url": "https://git.llvm.org/git/llvm"
+                }
+            ]
+        },
+        {
+            "name": "libdrm",
+            "config-opts": [ "--disable-static", "--disable-udev" ],
+            "sources": [
+                 {
+                     "type": "git",
+                     "url": "https://gitlab.freedesktop.org/mesa/drm"
+                 }
+            ]
+        },
+        {
+            "name": "libglvnd",
+            "config-opts": [ "--disable-static", "--enable-asm", "--enable-tls" ],
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://github.com/NVIDIA/libglvnd.git"
                 }
             ]
         },
@@ -132,7 +151,7 @@
                 "--enable-glx-tls",
                 "--enable-texture-float=yes",
                 "--enable-llvm",
-                "--with-llvm-prefix=/usr/lib/GL/default",
+                "--with-llvm-prefix=/usr/lib/x86_64-linux-gnu/GL/default",
                 "--disable-llvm-shared-libs",
                 "--enable-dri",
                 "--enable-sysfs"
@@ -140,13 +159,13 @@
             "make-args": [ "MKDEP=/bin/true"],
             "post-install": [
                 /* Strip the dri drivers to avoid breaking the hardlinks later */
-                "for i in /usr/lib/GL/default/lib/vdpau/*.so.1.0.0 /usr/lib/GL/default/lib/dri/*.so; do cp $i $i.tmp; eu-strip $i.tmp; mv $i.tmp $i; done",
+                "for i in /usr/lib/x86_64-linux-gnu/GL/default/lib/vdpau/*.so.1.0.0 /usr/lib/x86_64-linux-gnu/GL/default/lib/dri/*.so; do cp $i $i.tmp; eu-strip $i.tmp; mv $i.tmp $i; done",
                 /* Set the default driver to mesa */
-                "ln -s libEGL_mesa.so /usr/lib/GL/default/lib/libEGL_indirect.so",
-                "ln -s libEGL_mesa.so.0 /usr/lib/GL/default/lib/libEGL_indirect.so.0",
-                "ln -s libGLX_mesa.so /usr/lib/GL/default/lib/libGLX_indirect.so",
-                "ln -s libGLX_mesa.so.0 /usr/lib/GL/default/lib/libGLX_indirect.so.0",
-                "mv /usr/lib/GL/default/share/vulkan /usr/lib/GL/default/vulkan"
+                "ln -s libEGL_mesa.so /usr/lib/x86_64-linux-gnu/GL/default/lib/libEGL_indirect.so",
+                "ln -s libEGL_mesa.so.0 /usr/lib/x86_64-linux-gnu/GL/default/lib/libEGL_indirect.so.0",
+                "ln -s libGLX_mesa.so /usr/lib/x86_64-linux-gnu/GL/default/lib/libGLX_indirect.so",
+                "ln -s libGLX_mesa.so.0 /usr/lib/x86_64-linux-gnu/GL/default/lib/libGLX_indirect.so.0",
+                "mv /usr/lib/x86_64-linux-gnu/GL/default/share/vulkan /usr/lib/x86_64-linux-gnu/GL/default/vulkan"
            ],
             "sources": [
                 {
@@ -155,11 +174,7 @@
                 },
                 {
                     "type": "patch",
-                    "path": "mesa-glvnd-fix-gl-dot-pc.patch"
-                },
-                {
-                    "type": "patch",
-                    "path": "mesa-17.2.2-dri-path.patch"
+                    "path": "mesa-Fix-linkage-against-shared-glapi.patch"
                 }
             ]
         }
