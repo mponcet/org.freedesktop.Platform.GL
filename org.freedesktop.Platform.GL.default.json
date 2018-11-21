@@ -1,6 +1,6 @@
 {
     "id": "org.freedesktop.Platform.GL.default",
-    "branch": "1.6",
+    "branch": "18.08",
     "runtime": "org.freedesktop.Platform",
     "build-extension": true,
     "sdk": "org.freedesktop.Sdk",
