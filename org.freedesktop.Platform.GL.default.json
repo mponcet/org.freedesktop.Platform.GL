@@ -171,10 +171,6 @@
                 {
                     "type": "git",
                     "url": "https://anongit.freedesktop.org/git/mesa/mesa.git"
-                },
-                {
-                    "type": "patch",
-                    "path": "mesa-Fix-linkage-against-shared-glapi.patch"
                 }
             ]
         }
