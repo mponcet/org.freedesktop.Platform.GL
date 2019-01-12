@@ -7,15 +7,15 @@
     "runtime-version": "18.08",
     "sdk-extensions": [],
     "separate-locales": false,
-    "cleanup": [  "/include", "/share/man" ],
     "build-options" : {
         "no-debuginfo": true,
         "strip": true,
         "prefix": "/usr/lib/x86_64-linux-gnu/GL/default",
         "env": {
             "V": "1",
-            "PKG_CONFIG_LIBGLVND_DATADIR": "/usr/lib/x86_64-linux-gnu/GL/default",
-            "PKG_CONFIG_PATH": "/usr/lib/x86_64-linux-gnu/GL/default/lib/pkgconfig:/app/lib/pkgconfig:/app/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig"
+            "PKG_CONFIG_PATH": "/usr/lib/x86_64-linux-gnu/GL/default/lib/pkgconfig:/app/lib/pkgconfig:/app/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
+            "PYTHONPATH": "/usr/lib/x86_64-linux-gnu/GL/default/lib/python3.7/site-packages",
+            "PKG_CONFIG_LIBGLVND_DATADIR": "/usr/lib/x86_64-linux-gnu/GL/default"
         }
     },
     "modules": [
@@ -26,30 +26,14 @@
             "cleanup-platform": ["*"],
             "build-options" : {
                 "env": {
-                    /* Override global values */
                     "CFLAGS": "",
                     "CXXFLAGS": "",
                     "LDFLAGS": ""
                 },
                 "arch" : {
-                    "i386" : {
-                        "config-opts" : [
-                            "-DLLVM_TARGETS_TO_BUILD=X86;AMDGPU;NVPTX"
-                        ]
-                    },
                     "x86_64" : {
                         "config-opts" : [
                             "-DLLVM_TARGETS_TO_BUILD=X86;AMDGPU;NVPTX"
-                        ]
-                    },
-                    "arm" : {
-                        "config-opts" : [
-                            "-DLLVM_TARGETS_TO_BUILD=ARM;AMDGPU;NVPTX"
-                        ]
-                    },
-                    "aarch64" : {
-                        "config-opts" : [
-                            "-DLLVM_TARGETS_TO_BUILD=AArch64;AMDGPU;NVPTX"
                         ]
                     }
                 }
@@ -57,11 +41,18 @@
             "config-opts": [
                 "-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF",
                 "-DBUILD_SHARED_LIBS:BOOL=OFF",
+                "-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON",
+                "-DLLVM_DYLIB_SYMBOL_VERSIONING:BOOL=ON",
+                "-DLLVM_LINK_LLVM_DYLIB:BOOL=ON",
                 "-DCMAKE_BUILD_TYPE=Release",
                 "-DLLVM_LIBDIR_SUFFIX=",
                 "-DLLVM_ENABLE_LIBCXX:BOOL=OFF",
                 "-DLLVM_ENABLE_ZLIB:BOOL=ON",
                 "-DLLVM_ENABLE_FFI:BOOL=ON",
+                "-DLLVM_ENABLE_LIBCXX:BOOL=OFF",
+                "-DLLVM_ENABLE_ZLIB:BOOL=ON",
+                "-DLLVM_ENABLE_FFI:BOOL=ON",
+                "-DLLVM_ENABLE_RTTI:BOOL=ON",
                 "-DLLVM_INCLUDE_TESTS:BOOL=OFF",
                 "-DLLVM_BUILD_TOOLS:BOOL=ON",
                 "-DLLVM_INCLUDE_EXAMPLES:BOOL=OFF",
@@ -69,6 +60,7 @@
                 "-DLLVM_INCLUDE_DOCS:BOOL=OFF",
                 "-DLLVM_ENABLE_DOXYGEN:BOOL=OFF",
                 "-DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON",
+                "-DLLVM_BINUTILS_INCDIR=/usr/lib/x86_64-linux-gnu/GL/default/include",
                 "-DFFI_INCLUDE_DIR=/usr/lib/x86_64-linux-gnu/libffi-3.2.1/include",
                 "-DLLVM_INSTALL_TOOLCHAIN_ONLY:BOOL=OFF"
             ],
@@ -76,7 +68,19 @@
                 {
                     "type": "git",
                     "url": "https://git.llvm.org/git/llvm"
+                },
+                {
+                    "type": "git",
+                    "url": "https://git.llvm.org/git/clang",
+                    "dest": "tools/clang"
+                },
+                {
+                    "type": "git",
+                    "url": "https://git.llvm.org/git/compiler-rt",
+                    "dest": "tools/compiler-rt"
                 }
+
+
             ]
         },
         {
@@ -100,77 +104,80 @@
             ]
         },
         {
+            "name": "mako",
+            "buildsystem": "simple",
+            "build-commands": [
+                "pip3 install --prefix=/usr/lib/x86_64-linux-gnu/GL/default --no-deps ."
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://files.pythonhosted.org/packages/ac/7e/1b4c2e05809a4414ebce0892fe1e32c14ace86ca7d50c70f00979ca9b3a3/MarkupSafe-1.1.0.tar.gz",
+                    "sha256": "4e97332c9ce444b0c2c38dd22ddc61c743eb208d916e4265a2a3b575bdccb1d3"
+                },
+                {
+                    "type": "archive",
+                    "url": "https://files.pythonhosted.org/packages/eb/f3/67579bb486517c0d49547f9697e36582cd19dafb5df9e687ed8e22de57fa/Mako-1.0.7.tar.gz",
+                    "sha256": "4e02fde57bd4abb5ec400181e4c314f56ac3e49ba4fb8b0d50bba18cb27d25ae"
+                }
+          ]
+        },
+        {
             "name": "mesa",
+            "buildsystem": "meson",
             "build-options" : {
-                "cxxflags": "-fno-rtti -fno-exceptions",
                 "arch" : {
-                    "i386" : {
-                        "config-opts" : [
-                            "--build=i586-unknown-linux-gnu",
-                            "--with-gallium-drivers=svga,swrast,radeonsi,nouveau,r600,r300,radeonsi,virgl",
-                            "--with-dri-drivers=swrast,nouveau,radeon,r200,i915,i965",
-                            "--with-vulkan-drivers=intel,radeon"
-                        ]
-                    },
                     "x86_64" : {
                         "config-opts" : [
-                            "--with-gallium-drivers=svga,swrast,radeonsi,nouveau,r600,r300,radeonsi,virgl",
-                            "--with-dri-drivers=swrast,nouveau,radeon,r200,i915,i965",
-                            "--with-vulkan-drivers=intel,radeon"
-                        ]
-                    },
-                    "arm" : {
-                        "config-opts" : [
-                        "--with-gallium-drivers=swrast,nouveau,freedreno,vc4",
-                        "--with-dri-drivers=swrast,nouveau,radeon,r200"
-                        ]
-                    },
-                    "aarch64" : {
-                        "config-opts" : [
-                            "--with-gallium-drivers=swrast,nouveau,freedreno,vc4",
-                            "--with-dri-drivers=swrast,nouveau,radeon,r200"
+                            "-Dgallium-drivers=svga,swrast,nouveau,r600,r300,radeonsi,virgl",
+                            "-Ddri-drivers=nouveau,r100,r200,i915,i965",
+                            "-Dvulkan-drivers=intel,amd"
                         ]
                     }
                 }
             },
             "config-opts": [
-                "--enable-libglvnd",
-                "--disable-selinux",
-                "--disable-osmesa",
-                "--enable-egl",
-                "--disable-gles1",
-                "--enable-gles2",
-                "--enable-vdpau",
-                "--enable-va",
-                "--enable-xa",
-                "--disable-xvmc",
-                "--with-platforms=x11,drm,surfaceless,wayland",
-                "--enable-shared-glapi",
-                "--enable-gbm",
-                "--disable-opencl",
-                "--enable-glx-tls",
-                "--enable-texture-float=yes",
-                "--enable-llvm",
-                "--with-llvm-prefix=/usr/lib/x86_64-linux-gnu/GL/default",
-                "--disable-llvm-shared-libs",
-                "--enable-dri",
-                "--enable-sysfs"
+                "--native-file=../llvm.ini",
+                "-Db_ndebug=true",
+                "-Dglvnd=true",
+                "-Dlibunwind=true",
+                "-Dselinux=false",
+                "-Dosmesa=gallium",
+                "-Degl=true",
+                "-Dgles1=false",
+                "-Dgles2=true",
+                "-Dgallium-omx=disabled",
+                "-Dgallium-nine=true",
+                "-Dgallium-vdpau=true",
+                "-Dgallium-va=true",
+                "-Dgallium-xa=true",
+                "-Dgallium-xvmc=false",
+                "-Dgallium-opencl=icd",
+                "-Dplatforms=x11,drm,surfaceless,wayland",
+                "-Dshared-glapi=true",
+                "-Dgbm=true",
+                "-Dglx=auto",
+                "-Dtexture-float=true",
+                "-Dllvm=true",
+                "-Ddri3=true",
+                "-Dxlib-lease=true",
+                "-Dvulkan-icd-dir=/usr/lib/x86_64-linux-gnu/GL/default/vulkan/icd.d"
             ],
-            "make-args": [ "MKDEP=/bin/true"],
             "post-install": [
-                /* Strip the dri drivers to avoid breaking the hardlinks later */
                 "for i in /usr/lib/x86_64-linux-gnu/GL/default/lib/vdpau/*.so.1.0.0 /usr/lib/x86_64-linux-gnu/GL/default/lib/dri/*.so; do cp $i $i.tmp; eu-strip $i.tmp; mv $i.tmp $i; done",
-                /* Set the default driver to mesa */
                 "ln -s libEGL_mesa.so /usr/lib/x86_64-linux-gnu/GL/default/lib/libEGL_indirect.so",
                 "ln -s libEGL_mesa.so.0 /usr/lib/x86_64-linux-gnu/GL/default/lib/libEGL_indirect.so.0",
                 "ln -s libGLX_mesa.so /usr/lib/x86_64-linux-gnu/GL/default/lib/libGLX_indirect.so",
-                "ln -s libGLX_mesa.so.0 /usr/lib/x86_64-linux-gnu/GL/default/lib/libGLX_indirect.so.0",
-                "mv /usr/lib/x86_64-linux-gnu/GL/default/share/vulkan /usr/lib/x86_64-linux-gnu/GL/default/vulkan"
-           ],
+                "ln -s libGLX_mesa.so.0 /usr/lib/x86_64-linux-gnu/GL/default/lib/libGLX_indirect.so.0"
+            ],
             "sources": [
                 {
                     "type": "git",
                     "url": "https://anongit.freedesktop.org/git/mesa/mesa.git"
+                },
+                {
+                    "type": "file",
+                    "path": "llvm.ini"
                 }
             ]
         }
